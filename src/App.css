@@ -1,38 +1,103 @@
-.App {
-  text-align: center;
+.main-container {
+  margin: 50px auto 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.list-content{
+  padding-top: .5em;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.ui.button.button-add {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin: 1rem;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.search-text{
+  background-color: #333;
+  color: #fff;
 }
 
-.App-link {
-  color: #61dafb;
+.ui.multiple.dropdown.custom-multiple-dropdown {
+  padding: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.ui.inline.dropdown.custom-multiple-dropdown .dropdown.icon {
+  margin: 0 .21428571em 0 .21428571em;
+  vertical-align: bottom;
+  font-size: 1.1em;
+}
+
+.ui.multiple.dropdown.custom-multiple-dropdown>.label {
+  vertical-align: inherit;
+  white-space: normal;
+  padding: 0;
+  margin: 0.28571429rem 0 0;
+  box-shadow: none;
+  color: inherit;
+  background: none;
+}
+
+.ui.multiple.dropdown.custom-multiple-dropdown .ui.label>.delete.icon {
+  cursor: pointer;
+  margin-right: .5em;
+  margin-left: .4em;
+  font-size: .8em;
+  opacity: .7;
+  transition: none;
+}
+
+.level-button-box{
+  margin: .3em .4em .3em 0;
+}
+
+.level-button{
+  display: inline-block;
+  margin: 0 0 0 0.7em;
+  width: 2rem;
+  height: 2rem;
+  position: relative;
+  cursor: pointer;
+}
+
+.level-button:after{
+  content: " ";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #dedede;
+  border-radius: 1px;
+}
+
+.level-button.low:after{
+  height: 25%;
+}
+
+.level-button.medium:after{
+  height: 50%;
+}
+
+.level-button.high:after{
+  height: 75%;
+}
+
+.level-button.full:after{
+  height: 100%;
+}
+
+.level-button.low.active:after{
+  background: red;
+}
+
+.level-button.medium.active:after{
+  background: orange;
+}
+
+.level-button.high.active:after{
+  background: green;
+}
+
+.level-button.full.active:after{
+  background: green;
 }
