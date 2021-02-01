@@ -5,6 +5,8 @@
 .list-content{
   padding-top: .5em;
   text-transform: capitalize;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .ui.button.button-add {
