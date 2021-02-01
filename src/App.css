@@ -4,6 +4,7 @@
 
 .list-content{
   padding-top: .5em;
+  text-transform: capitalize;
 }
 
 .ui.button.button-add {
@@ -48,14 +49,14 @@
 }
 
 .level-button-box{
-  margin: .3em .4em .3em 0;
+  margin: .4em .4em .3em 0;
 }
 
 .level-button{
   display: inline-block;
-  margin: 0 0 0 0.7em;
-  width: 2rem;
-  height: 2rem;
+  margin: 0 0 0 0.8em;
+  width: 2.4rem;
+  height: 2.4rem;
   position: relative;
   cursor: pointer;
 }

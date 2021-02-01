@@ -3,7 +3,8 @@ import { config } from './firebase-credentials';
 import firebase from 'firebase/app';
 import "firebase/auth";
 import "firebase/firestore";
-import { Header, Message, Button, Icon, Modal, Divider, Input, Label, Container, Dropdown, List, Dimmer, Loader, Menu } from 'semantic-ui-react';
+import { Header, Confirm, Message, Button, Icon, Modal, Divider, Input, Label, Container, Dropdown, List, Dimmer, Loader, Menu } from 'semantic-ui-react';
+import ListItemContent from './ListItemContent';
 import Level from './Level';
 import "./App.css";
 export default class App extends Component {
@@ -29,11 +30,11 @@ export default class App extends Component {
       { key: 'o0', text: 'level high to low', value: 'desc' },
       { key: 'o1', text: 'level low to high', value: 'asc' }
     ]
-    
+
     this.state = {
       content: 'loading',
       loginError: '',
-      defaultStatus: [0,1],
+      defaultStatus: [0,1,2,3,4],
       defaultCat: 'all',
       defaultOrder: 'asc',
       stuff: {},
@@ -43,19 +44,22 @@ export default class App extends Component {
       newStuffName: '',
       newStuffError: false,
       newCatName: '',
+      openDeleteConfirm: false,
       newLevel: 3
     };
+
+    this.stuffToDelete = null;
 
     this.signInWithGoogle = this.signInWithGoogle.bind(this);
     this.getStuff = this.getStuff.bind(this);
     this.editStuffStatus = this.editStuffStatus.bind(this);
     this.searchFilterStuff = this.searchFilterStuff.bind(this);
     this.addNewStuff = this.addNewStuff.bind(this);
+    this.deleteConfirm = this.deleteConfirm.bind(this);
     //this.getStuffCats = this.getStuffCats.bind(this);
   }
 
-  componentDidMount() {
-    
+  componentDidMount() {   
     this.auth.onAuthStateChanged((user) => {
       if (user) {
         if(this.debug) console.log(user);
@@ -76,14 +80,12 @@ export default class App extends Component {
         console.log(error.code);
         this.setState({content: 'login'});
       });
-  })
-  .catch((error) => {
-    console.log(error.code);
-    console.log(error.message);
-    this.setState({content: 'login'});
-  });
-    
-    
+    })
+    .catch((error) => {
+      console.log(error.code);
+      console.log(error.message);
+      this.setState({content: 'login'});
+    });
   }
 
   getStuff(status = this.state.defaultStatus, cat = 'all', order = this.state.defaultOrder) {
@@ -123,7 +125,7 @@ export default class App extends Component {
           }
         }
       }
-      this.setState({stuff, content: 'stuff', defaultStatus: status, loginError: ''});
+      this.setState({stuff, content: 'stuff', defaultStatus: status, defaultOrder: order, loginError: ''});
     }).catch((e) => {
       if(e.code === 'permission-denied'){
         this.setState({content: 'login', loginError: 'This user is unauthorized'});
@@ -205,6 +207,26 @@ export default class App extends Component {
     }
   }
 
+  onLongPress(stuffid){
+    this.stuffToDelete = stuffid;
+    this.setState({openDeleteConfirm: true});
+  };
+
+  deleteConfirm(d = false){
+    if (!d) {
+      this.setState({openDeleteConfirm: false});
+      return;
+    } else {
+      this.db.collection("stuff").doc(this.stuffToDelete).delete();
+      let newStuff = {...this.state.stuff};
+      delete newStuff[this.stuffToDelete];
+      this.setState({
+        stuff: newStuff,
+        openDeleteConfirm: false
+      });
+    }
+  };
+
   render() {
     let screen;
 
@@ -214,32 +236,58 @@ export default class App extends Component {
       break;
       case 'stuff':
         screen = <>
-        <Menu className="fixed top">
+        <Menu className="fixed top" size='large' borderless>
           <Menu.Item header>Coinquilini Stuff</Menu.Item>
           <Menu.Menu position='right'>
-            <Input icon='search' placeholder='Search...' onChange={(e, data) => this.searchFilterStuff(data.value)}/>
+            <Input icon='search' size='mini' className="transparent" placeholder='Search...' onChange={(e, data) => this.searchFilterStuff(data.value)}/>
+            <Dropdown icon='filter' item>
+              <Dropdown.Menu>
+                <Dropdown.Header icon='filter' content="Filter levels" />
+                <Dropdown.Divider />
+                {this.statues.map((st, i) => {
+                  return <Dropdown.Item icon={(this.state.defaultStatus.indexOf(st.value) > -1) ? 'check square' : 'square outline'} key={st.key} content={st.text} onClick={() => {
+                    let nst = this.state.defaultStatus;
+                    if(nst.indexOf(st.value) > -1){
+                      let i = nst.indexOf(st.value);
+                      nst.splice(i, 1);
+                    } else {
+                      nst.push(st.value)
+                    }
+                    this.getStuff(nst, this.state.defaultCat, this.state.defaultOrder)
+                  }} />
+                })}
+                <Dropdown.Divider />
+                <Dropdown.Header icon='sort' content='Sorting from' />
+                {this.orderedBy.map((ord, i) => {
+                  return <Dropdown.Item icon={(this.state.defaultOrder === ord.value) ? 'check circle' : 'circle outline'} key={ord.key} content={ord.text} onClick={() => this.getStuff(this.state.defaultStatus, this.state.defaultCat, ord.value)} />
+                })}
+              </Dropdown.Menu>
+            </Dropdown>
           </Menu.Menu>
         </Menu>
         <div className="main-container">
           <Container text>
             {(!window.navigator.standalone) && <Message info>For a better experience, add this website to your homescreen</Message>}
-            Showing stuff <Dropdown floating inline multiple closeOnChange options={this.statues} defaultValue={this.state.defaultStatus} className="custom-multiple-dropdown" onChange={(v,data) => this.getStuff(data.value, this.state.defaultCat, this.state.defaultOrder)} /> in level {/*, of category <Dropdown floating inline closeOnChange options={this.state.stuffcats} defaultValue={'all'}  onChange={(v,data) => this.getStuff(this.state.defaultStatus, data.value, this.state.defaultOrder)} /> */} and ordered by <Dropdown floating inline options={this.orderedBy} defaultValue={this.state.defaultOrder} onChange={(v, data) => this.getStuff(this.state.defaultStatus, this.state.defaultCat, data.value)} />
           </Container>
-          <List celled relaxed selection size="large">
+          <List celled relaxed selection size="big">
             {Object.keys(this.state.stuff).map(key => {
               let disabled = (typeof this.state.stuff[key].disabled === 'undefined') ? false : this.state.stuff[key].disabled;
               return <List.Item key={key} style={(disabled)?{display:'none'}:{}} className="list-item">
                 <List.Content floated='right'>
                   <Level level={parseInt(this.state.stuff[key].status)} onChange={(v) => this.editStuffStatus(key, v)} />
                 </List.Content>
-                <List.Content className="list-content">  
-                  <List.Header dangerouslySetInnerHTML={{__html: (typeof this.state.stuff[key].searchName !== 'undefined')? this.state.stuff[key].searchName : this.state.stuff[key].name}} />
-                  {/* <List.Description>{this.state.stuff[key].cat}</List.Description> */}
-                </List.Content>
+                <ListItemContent itemName={(typeof this.state.stuff[key].searchName !== 'undefined') ? this.state.stuff[key].searchName : this.state.stuff[key].name} longPressCallback={() => this.onLongPress(key)} onClick={() => {}} />
               </List.Item>
               }
             )}
           </List>
+          <Confirm
+            header='This is a large confirm'
+            open={this.state.openDeleteConfirm}
+            onCancel={() => this.deleteConfirm(false)}
+            onConfirm={() => this.deleteConfirm(true)}
+            size='mini'
+          />
           <Button circular icon='add' size='large' color='teal' className="button-add" onClick={() => this.setState({ openModal: true })} />
           <Modal style={{width:'auto'}} open={this.state.openModal} dimmer="blurring">
             <Modal.Header>Add new Stuff</Modal.Header>
