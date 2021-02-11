@@ -45,6 +45,7 @@ export default class App extends Component {
       newStuffError: false,
       newCatName: '',
       openDeleteConfirm: false,
+      stuffToDeleteName: '',
       newLevel: 3
     };
 
@@ -209,7 +210,7 @@ export default class App extends Component {
 
   onLongPress(stuffid){
     this.stuffToDelete = stuffid;
-    this.setState({openDeleteConfirm: true});
+    this.setState({openDeleteConfirm: true, stuffToDeleteName: this.state.stuff[stuffid].name});
   };
 
   deleteConfirm(d = false){
@@ -282,13 +283,13 @@ export default class App extends Component {
             )}
           </List>
           <Confirm
-            header='This is a large confirm'
+            header={'Delete "' + this.state.stuffToDeleteName + '"'}
             open={this.state.openDeleteConfirm}
             onCancel={() => this.deleteConfirm(false)}
             onConfirm={() => this.deleteConfirm(true)}
             size='mini'
           />
-          <Button circular icon='add' size='large' color='teal' className="button-add" onClick={() => this.setState({ openModal: true })} />
+          <Button circular icon='add' size='huge' color='teal' className="button-add" onClick={() => this.setState({ openModal: true })} />
           <Modal style={{width:'auto'}} open={this.state.openModal} dimmer="blurring">
             <Modal.Header>Add new Stuff</Modal.Header>
             <Modal.Content>
